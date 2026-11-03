@@ -10,6 +10,18 @@ MSG="${1:-update site $(date '+%Y-%m-%d %H:%M')}"
 REPO="boffya/typingsun"
 BRANCH="main"
 
+echo "==> 自动更新缓存版本号"
+STAMP=$(date '+%Y%m%d%H%M')
+python3 - "$STAMP" << 'PY'
+import re, sys
+v = sys.argv[1]
+p = 'index.html'
+s = open(p, encoding='utf8').read()
+s = re.sub(r'(\?v=)[0-9A-Za-z]+', r'\g<1>' + v, s)
+open(p, 'w', encoding='utf8').write(s)
+print('  版本号 ->', v)
+PY
+
 echo "==> 检查改动"
 if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
   echo "没有文件改动，将推送一个空提交来强制重新构建"
